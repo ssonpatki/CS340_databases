@@ -21,16 +21,23 @@ CREATE TABLE Events (
     FOREIGN KEY(venue_id) REFERENCES Venues(venue_id)   -- added specific reference for FK
 );
 
-CREATE TABLE Tasks (
+CREATE TABLE Task_definitions (
     task_id int(11) NOT NULL AUTO_INCREMENT,    -- added auto_increment
     task_name varchar(255) NOT NULL,
     task_description text NOT NULL,
     task_status varchar(255) NOT NULL,
+    PRIMARY KEY (task_id)
+);
+
+CREATE TABLE Task_assignments (
+    assignment_id int(11) NOT NULL AUTO_INCREMENT,
+    task_id int(11) NOT NULL AUTO_INCREMENT,
     event_id int(11) NOT NULL UNIQUE,
     attendee_id int(11),
-    PRIMARY KEY (task_id),
+    PRIMARY KEY (assignment_id),
+    FOREIGN KEY (task_id) REFERENCES Tasks(task_id),
     FOREIGN KEY(event_id) REFERENCES Events(event_id),
-    FOREIGN KEY(attendee_id) REFERENCES Attendees(attendee_id)  -- added specific reference for FK
+    FOREIGN KEY(attendee_id) REFERENCES Attendees(attendee_id),  -- added specific reference for FK
 );
 
 CREATE TABLE Event_has_attendees (
@@ -72,10 +79,15 @@ CREATE TABLE Venues (
 INSERT INTO Events (event_id, event_name, event_date, total_attendees, venue_id)
 VALUES ('int', 'varchar', 'date', 'int', (SELECT venue_id FROM Venues WHERE venue_id =''));
 
--- populate Tasks table
+-- populate Task_definitions table
 
-INSERT INTO Tasks (task_id, task_name, task_description, task_status, event_id, attendee_id)
-VALUES ('task-id', 'task-name', 'task_des', 'status', (SELECT event_id FROM Events WHERE event_id =''), 
+INSERT INTO Tasks (task_id, task_name, task_description, task_status)
+VALUES ('task-id', 'task-name', 'task_des', 'status');
+
+-- populate Task_assignments table
+
+INSERT INTO Tasks (assignment_id, task_id, event_id, attendee_id)
+VALUES ('assignment-id', (SELECT task_id FROM Task_definitions WHERE task_id =''), (SELECT event_id FROM Events WHERE event_id =''), 
 (SELECT attendee_id FROM Attendees WHERE attendee_id =''));
 
 -- populate Event_has_attendees intersection table
