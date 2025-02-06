@@ -11,7 +11,7 @@
     Queries to create the tables 
 */
 
-CREATE TABLE Events (
+CREATE OR REPLACE TABLE Events (
     event_id int(11) NOT NULL UNIQUE AUTO_INCREMENT,    -- added auto_increment
     event_name varchar(255) NOT NULL UNIQUE,
     event_date date NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE Events (
     FOREIGN KEY(venue_id) REFERENCES Venues(venue_id)   -- added specific reference for FK
 );
 
-CREATE TABLE Task_definitions (
+CREATE OR REPLACE TABLE Task_definitions (
     task_id int(11) NOT NULL AUTO_INCREMENT,    -- added auto_increment
     task_name varchar(255) NOT NULL,
     task_description text NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE Task_definitions (
     PRIMARY KEY (task_id)
 );
 
-CREATE TABLE Task_assignments (
+CREATE OR REPLACE TABLE Task_assignments (
     assignment_id int(11) NOT NULL AUTO_INCREMENT,
     task_id int(11) NOT NULL AUTO_INCREMENT,
     event_id int(11) NOT NULL UNIQUE,
@@ -40,7 +40,7 @@ CREATE TABLE Task_assignments (
     FOREIGN KEY(attendee_id) REFERENCES Attendees(attendee_id),  -- added specific reference for FK
 );
 
-CREATE TABLE Event_has_attendees (
+CREATE OR REPLACE TABLE Event_has_attendees (
     event_id int(11) NOT NULL UNIQUE,
     attendee_id int(11) NOT NULL,
     PRIMARY KEY (event_id, attendee_id),    -- both event_id & attendee_id are FK in step 1, make it composite key?
@@ -49,7 +49,7 @@ CREATE TABLE Event_has_attendees (
 
 );
 
-CREATE TABLE Attendees (
+CREATE OR REPLACE TABLE Attendees (
     attendee_id int(11) NOT NULL UNIQUE AUTO_INCREMENT,    -- added auto_increment
     first_name varchar(255) NOT NULL,
     last_name varchar(255) NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE Attendees (
     PRIMARY KEY (attendee_id)
 );
 
-CREATE TABLE Venues (
+CREATE OR REPLACE TABLE Venues (
     venue_id int(11) NOT NULL UNIQUE AUTO_INCREMENT,    -- added auto_increment
     venue_name varchar(255) NOT NULL,
     capacity int(11) NOT NULL,
