@@ -35,7 +35,7 @@ CREATE OR REPLACE TABLE Task_assignments (
     event_id int(11) NOT NULL UNIQUE,
     attendee_id int(11),
     PRIMARY KEY (assignment_id),
-    FOREIGN KEY (task_id) REFERENCES Tasks(task_id),
+    FOREIGN KEY (task_id) REFERENCES Task_definitions(task_id),
     FOREIGN KEY(event_id) REFERENCES Events(event_id),
     FOREIGN KEY(attendee_id) REFERENCES Attendees(attendee_id),  -- added specific reference for FK
 );
@@ -45,8 +45,7 @@ CREATE OR REPLACE TABLE Event_has_attendees (
     attendee_id int(11) NOT NULL,
     PRIMARY KEY (event_id, attendee_id),    -- both event_id & attendee_id are FK in step 1, make it composite key?
     FOREIGN KEY (event_id) REFERENCES Events(event_id),     -- not sure if reference is necessary
-    FOREIGN KEY (attendee_id) REFERENCES Attendees(attendee_id),
-
+    FOREIGN KEY (attendee_id) REFERENCES Attendees(attendee_id)
 );
 
 CREATE OR REPLACE TABLE Attendees (
@@ -117,7 +116,7 @@ VALUES (1, 1),
 
 -- populate Attendees table
 
-INSERT INTO Attendees (attendee_id, first_name, last_name, event_date, email, phone_number, is_employee)
+INSERT INTO Attendees (attendee_id, first_name, last_name, email, phone_number, is_employee)
 VALUES (1, 'John', 'Doe', 'john.doe@email.com',	'555-111-1111', 1),    -- is_employee = 0 means not an employee
 (2, 'Alice', 'Smith', 'alice.smith@email.com', '555-222-2222', 1),
 (3, 'Bob', 'Johnson', 'bob.johnson@email.com', '555-333-3333', 0),
