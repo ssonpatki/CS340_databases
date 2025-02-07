@@ -12,7 +12,7 @@
 */
 
 CREATE OR REPLACE TABLE Events (
-    event_id int(11) NOT NULL UNIQUE AUTO_INCREMENT,    -- added auto_increment
+    event_id int(11) NOT NULL UNIQUE,   
     event_name varchar(255) NOT NULL UNIQUE,
     event_date date NOT NULL,
     total_attendees int(11) NOT NULL UNIQUE,
@@ -31,7 +31,7 @@ CREATE OR REPLACE TABLE Task_definitions (
 
 CREATE OR REPLACE TABLE Task_assignments (
     assignment_id int(11) NOT NULL AUTO_INCREMENT,
-    task_id int(11) NOT NULL AUTO_INCREMENT,
+    task_id int(11) NOT NULL,
     event_id int(11) NOT NULL UNIQUE,
     attendee_id int(11),
     PRIMARY KEY (assignment_id),
@@ -50,7 +50,7 @@ CREATE OR REPLACE TABLE Event_has_attendees (
 );
 
 CREATE OR REPLACE TABLE Attendees (
-    attendee_id int(11) NOT NULL UNIQUE AUTO_INCREMENT,    -- added auto_increment
+    attendee_id int(11) NOT NULL UNIQUE, 
     first_name varchar(255) NOT NULL,
     last_name varchar(255) NOT NULL,
     email varchar(255) NOT NULL UNIQUE,
@@ -60,7 +60,7 @@ CREATE OR REPLACE TABLE Attendees (
 );
 
 CREATE OR REPLACE TABLE Venues (
-    venue_id int(11) NOT NULL UNIQUE AUTO_INCREMENT,    -- added auto_increment
+    venue_id int(11) NOT NULL UNIQUE,    
     venue_name varchar(255) NOT NULL,
     capacity int(11) NOT NULL,
     is_employee tinyint(1) NOT NULL DEFAULT 1,
