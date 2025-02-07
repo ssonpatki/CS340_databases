@@ -55,7 +55,7 @@ CREATE OR REPLACE TABLE Attendees (
     last_name varchar(255) NOT NULL,
     email varchar(255) NOT NULL UNIQUE,
     phone_number varchar(255) NOT NULL UNIQUE,
-    is_employee tinyint(1) NOT NULL DEFAULT = 0,    -- check if default is written correctly
+    is_employee tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (attendee_id)
 );
 
@@ -63,15 +63,15 @@ CREATE OR REPLACE TABLE Venues (
     venue_id int(11) NOT NULL UNIQUE AUTO_INCREMENT,    -- added auto_increment
     venue_name varchar(255) NOT NULL,
     capacity int(11) NOT NULL,
-    is_employee tinyint(1) NOT NULL DEFAULT = 1,
+    is_employee tinyint(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (venue_id)
 );
 
 
 /*
-    Queries to insert data 
+    Queries to insert sample data 
     Note: (SELECT <attribute_name> FROM <table_name> WHERE <attribute_name> ='') is used 
-    when attribute it a FK
+    when value of a FK attribute is unknown
 */
 
 
