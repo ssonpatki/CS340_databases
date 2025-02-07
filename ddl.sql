@@ -74,33 +74,64 @@ CREATE OR REPLACE TABLE Venues (
     when attribute it a FK
 */
 
+
 -- populate Events table 
 
 INSERT INTO Events (event_id, event_name, event_date, total_attendees, venue_id)
-VALUES ('int', 'varchar', 'date', 'int', (SELECT venue_id FROM Venues WHERE venue_id =''));
+VALUES (1, 'Tech Summit 2025', '2025-3-15', 200, 1),
+(2, 'Annual Gala Dinner',	'2025-6-10', 150, 2),
+(3, 'AI Research Symposium', '2025-9-25', 250, 3),
+(4, 'Robotics Expo 2025', '2025-4-20', 300, 4),
+(5, 'Healthcare Innovation Forum', '2025-5-5', 180, 5); -- does not require SELECT unless value of FK is unknown
+
 
 -- populate Task_definitions table
 
-INSERT INTO Tasks (task_id, task_name, task_description, task_status)
-VALUES ('task-id', 'task-name', 'task_des', 'status');
+INSERT INTO Task_definitions (task_id, task_name, task_description, task_status)
+VALUES (1, 'Check in with caterers', 'Confirm catering services for event', 'Pending'),
+(2, 'Set up registration desk', 'Arrange materials and check-in lists', 'Completed'),
+(3, 'Keynote Speech Preparation', 'Ensure keynote speaker has necessary setup', 'In Progress'),
+(4, 'Tech Equipment Setup', 'Set up microphones, projectors, and laptops', 'Completed'),
+(5, 'Arrange Seating Plan', 'Organize seating for attendees', 'Pending');
+
 
 -- populate Task_assignments table
 
-INSERT INTO Tasks (assignment_id, task_id, event_id, attendee_id)
-VALUES ('assignment-id', (SELECT task_id FROM Task_definitions WHERE task_id =''), (SELECT event_id FROM Events WHERE event_id =''), 
-(SELECT attendee_id FROM Attendees WHERE attendee_id =''));
+INSERT INTO Task_assignments (assignment_id, task_id, event_id, attendee_id)
+VALUES (1, 1, 1, 2),
+(2, 2, 2, 4),
+(3, 3, 3, 6),
+(4, 4, 4, 8),
+(5, 5, 5, 10);
+
 
 -- populate Event_has_attendees intersection table
 
 INSERT INTO Event_has_attendees (event_id, attendee_id)
-VALUES ((SELECT event_id FROM Events WHERE event_id =''), (SELECT attendee_id FROM Attendees WHERE attendee_id =''));
+VALUES (1, 1),
+(1, 3),
+(2, 2),
+(2, 4),
+(3, 5);
+
 
 -- populate Attendees table
 
 INSERT INTO Attendees (attendee_id, first_name, last_name, event_date, email, phone_number, is_employee)
-VALUES ();
+VALUES (1, 'John', 'Doe', 'john.doe@email.com',	'555-111-1111', 1),    -- is_employee = 0 means not an employee
+(2, 'Alice', 'Smith', 'alice.smith@email.com', '555-222-2222', 1),
+(3, 'Bob', 'Johnson', 'bob.johnson@email.com', '555-333-3333', 0),
+(4, 'Emma', 'Brown', 'emma.brown@email.com', '555-444-4444', 1),
+(5, 'Liam', 'Wilson', 'liam.wilson@email.com', '555-555-5555', 0);
+
 
 -- populate Venues table
 
-INSERT INTO Venues (venue_id, venue_name, capacity, is_employee)
-VALUES ();
+INSERT INTO Venues (venue_id, venue_name, capacity, is_wheelchair_accessible)    
+VALUES (1, 'Grand Hall', 500, 1),    -- is_wheelchair_accessible = 0 means not accessible
+(2, 'Conference Room A', 100, 1),
+(3, 'Outdoor Pavilion', 300, 0),
+(4, 'City Auditorium', 600, 1),
+(5, 'Skyline Banquet Hall', 250, 1);
+
+
