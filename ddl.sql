@@ -11,6 +11,8 @@
     Queries to create the tables 
 */
 
+-- Had to change the order of entities in order for the tables to populate without errors
+
 CREATE OR REPLACE TABLE Attendees (
     attendee_id int(11) NOT NULL UNIQUE, 
     first_name varchar(255) NOT NULL,
