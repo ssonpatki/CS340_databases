@@ -1,0 +1,70 @@
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Event Planning</title>
+    <link href="main.css" rel="stylesheet" type="text/css" />
+    <script language="JavaScript">
+            function showform(dowhat) {
+                /*
+                * four DIVS: browse, insert, update, delete
+                * this function sets one visible the others not
+                */
+                if (dowhat == 'insert'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'block';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'none';
+                }
+                else if (dowhat == 'update'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'block';
+                    document.getElementById('delete').style.display = 'none';
+                }
+                else if (dowhat == 'delete'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'block';
+                }
+          else if (dowhat == 'all'){
+                    document.getElementById('browse').style.display = 'block';
+                    document.getElementById('insert').style.display = 'block';
+                    document.getElementById('update').style.display = 'block';
+                    document.getElementById('delete').style.display = 'block';
+                }
+                else { //by default display browse
+                    document.getElementById('browse').style.display = 'block';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'none';
+                }
+            }
+        function newPerson() { showform('insert'); }
+        function updatePerson(pid) { showform('update'); }
+        function deletePerson(pid) { showform ('delete'); }
+        function browsePeople() { showform ('browse'); }
+        function showAll() { showform ('all'); }
+    </script>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html"><u>Home</u></a>
+            <a href="events.html"><u>Events</u></a>
+            <a href="venues.html"><u>Venues</u></a>
+            <a href="attendees.html"><u>Attendees</u></a>
+            <a href="task_definitions.html"><u>Task Definitions</u></a>
+            <a href="task_assignments.html"><u>Task Assignments</u></a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>
+            <big style="font-size:175px;">ABC Event Planning</big></br >
+        </h1>
+        <h1> Have fun planning!</h1>
+    </main>
+</body>

@@ -1,0 +1,111 @@
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Event Planning</title>
+    <link href="main.css" rel="stylesheet" type="text/css" />
+    <script language="JavaScript">
+            function showform(dowhat) {
+                /*
+                * four DIVS: browse, insert, update, delete
+                * this function sets one visible the others not
+                */
+                if (dowhat == 'insert'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'block';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'none';
+                }
+                else if (dowhat == 'update'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'block';
+                    document.getElementById('delete').style.display = 'none';
+                }
+                else if (dowhat == 'delete'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'block';
+                }
+          else if (dowhat == 'all'){
+                    document.getElementById('browse').style.display = 'block';
+                    document.getElementById('insert').style.display = 'block';
+                    document.getElementById('update').style.display = 'block';
+                    document.getElementById('delete').style.display = 'block';
+                }
+                else { //by default display browse
+                    document.getElementById('browse').style.display = 'block';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'none';
+                }
+            }
+        function newPerson() { showform('insert'); }
+        function updatePerson(pid) { showform('update'); }
+        function deletePerson(pid) { showform ('delete'); }
+        function browsePeople() { showform ('browse'); }
+        function showAll() { showform ('all'); }
+    </script>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html"><u>Home</u></a>
+            <a href="events.html"><u>Events</u></a>
+            <a href="venues.html"><u>Venues</u></a>
+            <a href="attendees.html"><u>Attendees</u></a>
+            <a href="task_definitions.html"><u>Task Definitions</u></a>
+            <a href="task_assignments.html"><u>Task Assignments</u></a>
+        </nav>
+    </header>
+
+    <main onload="browseEvents()">
+        <h1>Events</h1>
+        <div id="browse">
+            <p><a href="#" onClick="showAll()">Display all forms</a> </p>
+            <table border="1" cellpadding="5">
+              <tr>
+                <th><a href="#" onClick="newEvent()">New</a></th>
+                <th></th>
+                <th>id</th>
+                <th>event_name</th>
+                <th>event_date</th>
+                <th>total_attendees</th>
+                <th>venue_id</th>
+              </tr>
+              <tr>
+                <td><a href="#" onClick="updateEvent('this.eventID')">Edit</a></td>
+                <td><a href="#" onclick="deleteEvent('this.eventID')">Delete</a></td>
+                <td align="right" >1</td>
+                <td >Tech Summit 2025</td>
+                <td>3/15/2025</td>
+                <td>200</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td><a href="#" onClick="updateEvent('this.eventID')">Edit</a></td>
+                <td><a href="#" onclick="deleteEvent('this.eventID')">Delete</a></td>
+                <td align="right" >2</td>
+                <td>Annual Gala Dinner</td>
+                <td>6/10/2025</td>
+                <td>150</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td><a href="#" onClick="updateEvent('this.eventID')">Edit</a></td>
+                <td><a href="#" onclick="deleteEvent('this.eventID')">Delete</a></td>
+                <td>3</td>
+                <td>AI Research Symposium</td>
+                <td>9/25/2025</td>
+                <td>250</td>
+                <td>3</td>
+              </tr>
+            </table>
+            <p>&nbsp;</p>
+
+    </main>
+    
+</body>
+</html>

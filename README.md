@@ -5,3 +5,5 @@
 ## Assignments
 
 ### Project Step 2 Draft: Normalized Schema + DDL with Sample Data
+
+### Project Step 3 Draft: Design HTML Interface + DML SQL

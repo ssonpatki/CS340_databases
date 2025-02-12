@@ -1,0 +1,116 @@
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Event Planning</title>
+    <link href="main.css" rel="stylesheet" type="text/css" />
+    <script language="JavaScript">
+            function showform(dowhat) {
+                /*
+                * four DIVS: browse, insert, update, delete
+                * this function sets one visible the others not
+                */
+                if (dowhat == 'insert'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'block';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'none';
+                }
+                else if (dowhat == 'update'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'block';
+                    document.getElementById('delete').style.display = 'none';
+                }
+                else if (dowhat == 'delete'){
+                    document.getElementById('browse').style.display = 'none';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'block';
+                }
+          else if (dowhat == 'all'){
+                    document.getElementById('browse').style.display = 'block';
+                    document.getElementById('insert').style.display = 'block';
+                    document.getElementById('update').style.display = 'block';
+                    document.getElementById('delete').style.display = 'block';
+                }
+                else { //by default display browse
+                    document.getElementById('browse').style.display = 'block';
+                    document.getElementById('insert').style.display = 'none';
+                    document.getElementById('update').style.display = 'none';
+                    document.getElementById('delete').style.display = 'none';
+                }
+            }
+        function newAttendee() { showform('insert'); }
+        function updateAttendee(pid) { showform('update'); }
+        function deleteAttendee(pid) { showform ('delete'); }
+        function browseAttendees() { showform ('browse'); }
+        function showAll() { showform ('all'); }
+    </script>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html"><u>Home</u></a>
+            <a href="events.html"><u>Events</u></a>
+            <a href="venues.html"><u>Venues</u></a>
+            <a href="attendees.html"><u>Attendees</u></a>
+            <a href="task_definitions.html"><u>Task Definitions</u></a>
+            <a href="task_assignments.html"><u>Task Assignments</u></a>
+        </nav>
+            
+    </header>
+
+    <main onload="browseAttendees()">
+        <h1>Attendees</h1>
+        <div id="browse">
+            <p><a href="#" onClick="showAll()">Display all forms</a> </p>
+            <table border="1" cellpadding="5">
+              <tr>
+                <th><a href="#" onClick="newAttendee()">New</a></th>
+                <th></th>
+                <th>attendee_id</th>
+                <th>first_name</th>
+                <th>last_name</th>
+                <th>email</th>
+                <th>phone_number</th>
+                <th>is_employee</th>
+              </tr>
+              <tr>
+                <td><a href="#" onClick="updateAttendee('this.attendeeID')">Edit</a></td>
+                <td><a href="#" onclick="deleteAttendee('this.attendeeID')">Delete</a></td>
+                <td align="right" >1</td>
+                <td>John</td>
+                <td>Doe</td>
+                <td>john.doe@email.com</td>
+                <td>555-111-1111</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td><a href="#" onClick="updateAttendee('this.attendeeID')">Edit</a></td>
+                <td><a href="#" onclick="deleteAttendee('this.attendeeID')">Delete</a></td>
+                <td align="right" >2</td>
+                <td>Alice</td>
+                <td>Smith</td>
+                <td>alice.smith@email.com</td>
+                <td>555-222-2222</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td><a href="#" onClick="updateAttendee('this.attendeeID')">Edit</a></td>
+                <td><a href="#" onclick="deleteAttendee('this.attendeeID')">Delete</a></td>
+                <td align="right" >3</td>
+                <td>Bob</td>
+                <td>Johnson</td>
+                <td>bob.johnson@email.com</td>
+                <td>555-333-3333</td>
+                <td>0</td>
+              </tr>
+            </table>
+            <p>&nbsp;</p>
+
+    </main>
+
+</body>
+</html>
