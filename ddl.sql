@@ -88,11 +88,11 @@ VALUES (1, 'John', 'Doe', 'john.doe@email.com',	'555-111-1111', 1),    -- is_emp
 -- populate Events table 
 
 INSERT INTO Events (event_id, event_name, event_date, total_attendees, venue_id)
-VALUES (1, 'Tech Summit 2025', '2025-3-15', 200, 1),
-(2, 'Annual Gala Dinner',	'2025-6-10', 150, 2),
-(3, 'AI Research Symposium', '2025-9-25', 250, 3),
-(4, 'Robotics Expo 2025', '2025-4-20', 300, 4),
-(5, 'Healthcare Innovation Forum', '2025-5-5', 180, 5); -- does not require SELECT unless value of FK is unknown
+VALUES (1, 'Tech Summit 2025', '2025-3-15', 200, (SELECT venue_id FROM Venues WHERE venue_id = 1)),
+(2, 'Annual Gala Dinner',	'2025-6-10', 150, (SELECT venue_id FROM Venues WHERE venue_id = 2)),
+(3, 'AI Research Symposium', '2025-9-25', 250, (SELECT venue_id FROM Venues WHERE venue_id = 3)),
+(4, 'Robotics Expo 2025', '2025-4-20', 300, (SELECT venue_id FROM Venues WHERE venue_id = 4)),
+(5, 'Healthcare Innovation Forum', '2025-5-5', 180, (SELECT venue_id FROM Venues WHERE venue_id = 5)); -- does not require SELECT unless value of FK is unknown
 
 -- populate Venues table
 
@@ -106,11 +106,11 @@ VALUES (1, 'Grand Hall', 500, 1),    -- is_wheelchair_accessible = 0 means not a
 -- populate Event_has_attendees intersection table
 
 INSERT INTO Event_has_attendees (event_id, attendee_id)
-VALUES (1, 1),
-(1, 3),
-(2, 2),
-(2, 4),
-(3, 5);
+VALUES ((SELECT event_id FROM Events WHERE event_id = 1), (SELECT attendee_id FROM Attendees WHERE attendee_id = 1)),
+((SELECT event_id FROM Events WHERE event_id = 1), (SELECT attendee_id FROM Attendees WHERE attendee_id = 3)),
+((SELECT event_id FROM Events WHERE event_id = 2), (SELECT attendee_id FROM Attendees WHERE attendee_id = 2)),
+((SELECT event_id FROM Events WHERE event_id = 2), (SELECT attendee_id FROM Attendees WHERE attendee_id = 4)),
+((SELECT event_id FROM Events WHERE event_id = 3), (SELECT attendee_id FROM Attendees WHERE attendee_id = 5));
 
 -- populate Task_definitions table
 
@@ -125,8 +125,8 @@ VALUES (1, 'Check in with caterers', 'Confirm catering services for event', 'Pen
 -- populate Task_assignments table
 
 INSERT INTO Task_assignments (assignment_id, task_id, event_id, attendee_id)
-VALUES (1, 1, 1, 1),
-(2, 2, 2, 2),
-(3, 3, 3, 3),
-(4, 4, 4, 4),
-(5, 5, 5, 5);
+VALUES (1, (SELECT task_id FROM Task_definitions WHERE task_id = 1), (SELECT event_id FROM Events WHERE event_id = 1), (SELECT attendee_id FROM Attendees WHERE attendee_id = 1)),
+(2, (SELECT task_id FROM Task_definitions WHERE task_id = 2), (SELECT event_id FROM Events WHERE event_id = 1), (SELECT attendee_id FROM Attendees WHERE attendee_id = 2)),
+(3, (SELECT task_id FROM Task_definitions WHERE task_id = 3), (SELECT event_id FROM Events WHERE event_id = 2), (SELECT attendee_id FROM Attendees WHERE attendee_id = 3)),
+(4, (SELECT task_id FROM Task_definitions WHERE task_id = 1), (SELECT event_id FROM Events WHERE event_id = 3), (SELECT attendee_id FROM Attendees WHERE attendee_id = 1)),
+(5, (SELECT task_id FROM Task_definitions WHERE task_id = 2), (SELECT event_id FROM Events WHERE event_id = 3), (SELECT attendee_id FROM Attendees WHERE attendee_id = 2));
