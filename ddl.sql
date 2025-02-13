@@ -6,7 +6,9 @@
     Due Date: 6 February 2025
 */
 
-
+SET FOREIGN_KEY_CHECKS = 0;
+SET AUTOCOMMIT = 0;
+    
 /*
     Queries to create the tables 
 */
@@ -14,9 +16,9 @@
 -- Had to change the order of entities in order for the tables to populate without errors
 
 CREATE OR REPLACE TABLE Attendees (
-    attendee_id int(11) NOT NULL UNIQUE, 
+    attendee_id int(11) NOT NULL AUTO_INCREMENT,
     first_name varchar(255) NOT NULL,
-    last_name varchar(255) NOT NULL,
+    last_name varchar(255) NOT NULL, 
     email varchar(255) NOT NULL UNIQUE,
     phone_number varchar(255) NOT NULL UNIQUE,
     is_employee tinyint(1) NOT NULL DEFAULT 0,
@@ -24,7 +26,7 @@ CREATE OR REPLACE TABLE Attendees (
 );
 
 CREATE OR REPLACE TABLE Venues (
-    venue_id int(11) NOT NULL UNIQUE,    
+    venue_id int(11) NOT NULL AUTO_INCREMENT,    
     venue_name varchar(255) NOT NULL,
     capacity int(11) NOT NULL,
     is_wheelchair_accessible tinyint(1) NOT NULL DEFAULT 1,
@@ -32,7 +34,7 @@ CREATE OR REPLACE TABLE Venues (
 );
 
 CREATE OR REPLACE TABLE Events (
-    event_id int(11) NOT NULL UNIQUE,   
+    event_id int(11) NOT NULL AUTO_INCREMENT,   
     event_name varchar(255) NOT NULL UNIQUE,
     event_date date NOT NULL,
     total_attendees int(11) NOT NULL,
@@ -42,7 +44,7 @@ CREATE OR REPLACE TABLE Events (
 );
 
 CREATE OR REPLACE TABLE Event_has_attendees (
-    event_id int(11) NOT NULL,
+    event_id int(11) NOT NULL,    -- not auto_increment because foreign key(?)
     attendee_id int(11) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES Events(event_id) ON DELETE CASCADE ,     -- not sure if reference is necessary
     FOREIGN KEY (attendee_id) REFERENCES Attendees(attendee_id) ON DELETE CASCADE 
