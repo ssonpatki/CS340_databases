@@ -4,26 +4,30 @@
     File: Data Definition Queries using Data Definition Language
     Database: SQL  
     Due Date: 6 February 2025
+    Revised: 13 February 2025
 */
 
 SET FOREIGN_KEY_CHECKS = 0;
 SET AUTOCOMMIT = 0;
     
 /*
-    Queries to create the tables 
+    Attendees Entity: records information about each individual attending the event, 
+    including whether they are an employee/company representative, or simply attending the event 
 */
-
--- Had to change the order of entities in order for the tables to populate without errors
 
 CREATE OR REPLACE TABLE Attendees (
     attendee_id int(11) NOT NULL AUTO_INCREMENT,
     first_name varchar(255) NOT NULL,
     last_name varchar(255) NOT NULL, 
-    email varchar(255) NOT NULL UNIQUE,
-    phone_number varchar(255) NOT NULL UNIQUE,
+    email varchar(255) NOT NULL,
+    phone_number varchar(15) NOT NULL,
     is_employee tinyint(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (attendee_id)
 );
+
+/*
+   Venues Entity: records information about venue
+*/
 
 CREATE OR REPLACE TABLE Venues (
     venue_id int(11) NOT NULL AUTO_INCREMENT,    
@@ -32,6 +36,10 @@ CREATE OR REPLACE TABLE Venues (
     is_wheelchair_accessible tinyint(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (venue_id)
 );
+
+/*
+    Events Entity: records basic information about an event 
+*/
 
 CREATE OR REPLACE TABLE Events (
     event_id int(11) NOT NULL AUTO_INCREMENT,   
@@ -43,12 +51,22 @@ CREATE OR REPLACE TABLE Events (
     FOREIGN KEY(venue_id) REFERENCES Venues(venue_id) -- added specific reference for FK
 );
 
+/*
+    Event_has_attendees: intersection table for Event and Attendees
+*/
+
 CREATE OR REPLACE TABLE Event_has_attendees (
     event_id int(11) NOT NULL,    -- not auto_increment because foreign key(?)
     attendee_id int(11) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES Events(event_id) ON DELETE CASCADE ,     -- not sure if reference is necessary
     FOREIGN KEY (attendee_id) REFERENCES Attendees(attendee_id) ON DELETE CASCADE 
 );
+
+
+/*
+    Task_definitions Entity: records information about tasks required to be completed 
+    to ensure the event’s success
+*/
 
 CREATE OR REPLACE TABLE Task_definitions (
     task_id int(11) NOT NULL AUTO_INCREMENT,    -- added auto_increment
@@ -58,15 +76,23 @@ CREATE OR REPLACE TABLE Task_definitions (
     PRIMARY KEY (task_id)
 );
 
+/*
+    Task_assignments Entity: creates an assignment ID for a task, as well as 
+        1) the ID of the original task details (from the Task_definitions entity), 
+        2) the event its associated with (found in the Events entity), 
+    and 3) the ID of the attendee that should complete the task 
+
+*/
+
 CREATE OR REPLACE TABLE Task_assignments (
     assignment_id int(11) NOT NULL AUTO_INCREMENT,
     task_id int(11) NOT NULL,
     event_id int(11) NOT NULL,
-    attendee_id int(11),
+    attendee_id int(11),    -- optional, in case task has not been assigned (yet) to a specific individual
     PRIMARY KEY (assignment_id),
-    FOREIGN KEY (task_id) REFERENCES Task_definitions(task_id),
-    FOREIGN KEY(event_id) REFERENCES Events(event_id),
-    FOREIGN KEY(attendee_id) REFERENCES Attendees(attendee_id)  -- added specific reference for FK
+    FOREIGN KEY (task_id) REFERENCES Task_definitions(task_id) ON DELETE CASCADE,
+    FOREIGN KEY(event_id) REFERENCES Events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY(attendee_id) REFERENCES Attendees(attendee_id)  ON DELETE CASCADE -- added specific reference for FK
 );
 
 
@@ -88,11 +114,11 @@ VALUES (1, 'John', 'Doe', 'john.doe@email.com',	'555-111-1111', 1),    -- is_emp
 -- populate Events table 
 
 INSERT INTO Events (event_id, event_name, event_date, total_attendees, venue_id)
-VALUES (1, 'Tech Summit 2025', '2025-3-15', 200, (SELECT venue_id FROM Venues WHERE venue_id = 1)),
-(2, 'Annual Gala Dinner',	'2025-6-10', 150, (SELECT venue_id FROM Venues WHERE venue_id = 2)),
-(3, 'AI Research Symposium', '2025-9-25', 250, (SELECT venue_id FROM Venues WHERE venue_id = 3)),
-(4, 'Robotics Expo 2025', '2025-4-20', 300, (SELECT venue_id FROM Venues WHERE venue_id = 4)),
-(5, 'Healthcare Innovation Forum', '2025-5-5', 180, (SELECT venue_id FROM Venues WHERE venue_id = 5)); -- does not require SELECT unless value of FK is unknown
+VALUES (1, 'Tech Summit 2025', '2025-03-15', 200, (SELECT venue_id FROM Venues WHERE venue_id = 1)),
+(2, 'Annual Gala Dinner',	'2025-06-10', 150, (SELECT venue_id FROM Venues WHERE venue_id = 2)),
+(3, 'AI Research Symposium', '2025-09-25', 250, (SELECT venue_id FROM Venues WHERE venue_id = 3)),
+(4, 'Robotics Expo 2025', '2025-04-20', 300, (SELECT venue_id FROM Venues WHERE venue_id = 4)),
+(5, 'Healthcare Innovation Forum', '2025-05-05', 180, (SELECT venue_id FROM Venues WHERE venue_id = 5)); -- does not require SELECT unless value of FK is unknown
 
 -- populate Venues table
 
