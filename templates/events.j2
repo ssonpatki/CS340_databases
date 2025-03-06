@@ -1,0 +1,102 @@
+<html>
+<!-- Adapted from the people.html UI design -->
+<head>
+	<title>Events</title>
+	<link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1><big>ABC Event Management System</big></h1> 
+
+	<nav>
+        <a href="index">Home</a>
+		<a href="events">Events</a>
+		<a href="venues">Venues</a>
+		<a href="attendees">Attendees</a>
+        <a href="event_has_attendees">Events Attendees (CRUD)</a>
+        <a href="task_definitions">Task Definitions</a>
+		<a href="task_assignments">Task Assignments</a>
+    </nav>
+
+    <h2>Manage Events</h2>
+
+    <form action='events.php' method='POST'>
+        <label for='eventId'>Select Event:</label>
+        <select name='eventId' id='eventId'>
+            <option value=''>-- Select Event --</option>
+            <option value='1'>Tech Summit 2025</option>
+            <option value='2'>Annual Gala Dinner</option>
+            <option value='3'>AI Research Symposium</option>
+            <option value='4'>Robotics Expo 2025</option>
+            <option value='5'>Healthcare Innovation Forum</option>
+        </select>
+        <label for='eventName'>Event Name:</label>
+        <input type='text' name='eventName' id='eventName'>
+        <label for='eventDate'>Event Date:</label>
+        <input type='date' name='eventDate' id='eventDate'>
+        <label for='totalAttendees'>Total Attendees:</label>
+        <input type='number' name='totalAttendees' id='totalAttendees'>
+        <label for='venueId'>Venue:</label>
+        <select name='venueId' id='venueId' required>
+            <option value=''>-- Select Venue --</option>
+            <option value='1'>Grand Hall</option>
+            <option value='2'>Conference Room A</option>
+            <option value='3'>Outdoor Pavilion</option>
+            <option value='4'>City Auditorium</option>
+            <option value='5'>Skyline Banquet Hall</option>
+        </select>
+        <button type='submit' name='action' value='update'>Update</button>
+        <button type='submit' name='action' value='delete'>Delete</button>
+        <button type='submit' name='action' value='add'>Add New</button>
+    </form>
+
+    <h2>Events List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Event Name</th>
+                <th>Event Date</th>
+                <th>Total Attendees</th>
+                <th>Venue</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Tech Summit 2025</td>
+                <td>2025-03-15</td>
+                <td>200</td>
+                <td>Grand Hall</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Annual Gala Dinner</td>
+                <td>2025-06-10</td>
+                <td>150</td>
+                <td>Conference Room A</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>AI Research Symposium</td>
+                <td>2025-09-25</td>
+                <td>250</td>
+                <td>Outdoor Pavilion</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Robotics Expo 2025</td>
+                <td>2025-04-20</td>
+                <td>300</td>
+                <td>City Auditorium</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>Healthcare Innovation Forum</td>
+                <td>2025-05-05</td>
+                <td>180</td>
+                <td>Skyline Banquet Hall</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

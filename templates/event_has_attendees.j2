@@ -1,0 +1,159 @@
+<html>
+<!-- Adapted from the people.html UI design -->
+<head>
+	<title>Event Attendees</title>
+	<link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<h1><big>ABC Event Management System</big></h1> 
+
+	<nav>
+        <a href="index">Home</a>
+		<a href="events">Events</a>
+		<a href="venues">Venues</a>
+		<a href="attendees">Attendees</a>
+        <a href="event_has_attendees">Events Attendees (CRUD)</a>
+        <a href="task_definitions">Task Definitions</a>
+		<a href="task_assignments">Task Assignments</a>
+    </nav>
+
+    <h2>Manage Event Attendees</h2>
+    
+    <!-- Add Attendee Form -->
+    <div class="mb-4">
+        <h4>Add Attendee to Event</h4>
+        <input type="number" id="event_id" class="form-control mb-2" placeholder="Event ID">
+        <input type="number" id="attendee_id" class="form-control mb-2" placeholder="Attendee ID">
+        <button class="btn btn-primary" onclick="addAttendee()">Add Attendee</button>
+    </div>
+
+    <!-- Attendee List -->
+    <h4>Event Attendees</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Event ID</th>
+                <th>Event Name</th>
+                <th>Attendee ID</th>
+                <th>Attendee Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="attendeeList"></tbody>
+    </table>
+
+    <!-- Update Attendee Form -->
+    <div class="mb-4" id="updateForm" style="display: none;">
+        <h4>Update Attendee</h4>
+        <input type="number" id="update_event_id" class="form-control mb-2" placeholder="New Event ID">
+        <input type="number" id="update_attendee_id" class="form-control mb-2" placeholder="New Attendee ID">
+        <button class="btn btn-success" onclick="updateAttendee()">Update Attendee</button>
+        <button class="btn btn-secondary" onclick="cancelUpdate()">Cancel</button>
+    </div>
+
+    <script>
+        let selectedAttendee = null;
+
+        async function fetchAttendees() {
+            const response = await fetch('/api/event_has_attendees');
+            const attendees = await response.json();
+            const tableBody = document.getElementById('attendeeList');
+            tableBody.innerHTML = '';
+
+            attendees.forEach(att => {
+                const row = `
+                    <tr>
+                        <td>${att.event_id}</td>
+                        <td>${att.event_name}</td>
+                        <td>${att.attendee_id}</td>
+                        <td>${att.first_name} ${att.last_name}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAttendee(${att.event_id}, ${att.attendee_id})">Remove</button>
+                            <button class="btn btn-warning btn-sm" onclick="editAttendee(${att.event_id}, ${att.attendee_id})">Edit</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        async function addAttendee() {
+            const event_id = document.getElementById('event_id').value;
+            const attendee_id = document.getElementById('attendee_id').value;
+
+            if (!event_id || !attendee_id) {
+                alert("Please enter both Event ID and Attendee ID");
+                return;
+            }
+
+            const response = await fetch('/api/event_has_attendees', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_id, attendee_id })
+            });
+
+            if (response.ok) {
+                fetchAttendees();
+                document.getElementById('event_id').value = '';
+                document.getElementById('attendee_id').value = '';
+            } else {
+                alert("Error adding attendee");
+            }
+        }
+
+        async function deleteAttendee(event_id, attendee_id) {
+            await fetch('/api/event_has_attendees', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_id, attendee_id })
+            });
+
+            fetchAttendees();
+        }
+
+        async function updateAttendee() {
+            const event_id = document.getElementById('update_event_id').value;
+            const attendee_id = document.getElementById('update_attendee_id').value;
+
+            if (!event_id || !attendee_id || !selectedAttendee) {
+                alert("Please provide valid data for the update");
+                return;
+            }
+
+            const response = await fetch('/api/event_has_attendees', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event_id: selectedAttendee.event_id,
+                    attendee_id: selectedAttendee.attendee_id,
+                    new_event_id: event_id,
+                    new_attendee_id: attendee_id
+                })
+            });
+
+            if (response.ok) {
+                fetchAttendees();
+                cancelUpdate();
+            } else {
+                alert("Error updating attendee");
+            }
+        }
+
+        function editAttendee(event_id, attendee_id) {
+            selectedAttendee = { event_id, attendee_id };
+            document.getElementById('update_event_id').value = event_id;
+            document.getElementById('update_attendee_id').value = attendee_id;
+            document.getElementById('updateForm').style.display = 'block';
+        }
+
+        function cancelUpdate() {
+            document.getElementById('updateForm').style.display = 'none';
+            selectedAttendee = null;
+        }
+
+        window.onload = fetchAttendees;
+    </script>
+
+</body>
+</html>

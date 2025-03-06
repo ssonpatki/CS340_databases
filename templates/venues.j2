@@ -1,0 +1,95 @@
+<html>
+<!-- Adapted from the people.html UI design -->
+<head>
+	<title>Venues</title>
+	<link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <h1><big>ABC Event Management System</big></h1> 
+
+	<nav>
+        <a href="index">Home</a>
+		<a href="events">Events</a>
+		<a href="venues">Venues</a>
+		<a href="attendees">Attendees</a>
+        <a href="event_has_attendees">Events Attendees (CRUD)</a>
+        <a href="task_definitions">Task Definitions</a>
+		<a href="task_assignments">Task Assignments</a>
+    </nav>
+
+    <h2>Manage Venues</h2>
+
+    <form action='venues.php' method='POST'>
+        <label for='venueId'>Select Venue:</label>
+        <select name='venueId' id='venueId'>
+            <option value=''>-- Select Venue --</option>
+            <option value='1'>Grand Hall</option>
+            <option value='2'>Conference Room A</option>
+            <option value='3'>Outdoor Pavilion</option>
+            <option value='4'>City Auditorium</option>
+            <option value='5'>Skyline Banquet Hall</option>
+        </select>
+
+        <label for='venueName'>Venue Name:</label>
+        <input type='text' name='venueName' id='venueName' required>
+
+        <label for='capacity'>Capacity:</label>
+        <input type='number' name='capacity' id='capacity' required>
+
+        <label for='wheelchairAccessible'>Wheelchair Accessible:</label>
+        <select name='wheelchairAccessible' id='wheelchairAccessible' required>
+            <option value=''>-- Select Option --</option>
+            <option value='1'>Yes</option>
+            <option value='2'>No</option>
+        </select>
+
+        <button type='submit' name='action' value='update'>Update</button>
+        <button type='submit' name='action' value='delete'>Delete</button>
+        <button type='submit' name='action' value='add'>Add New</button>
+    </form>
+
+    <h2>Venues List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Venue Name</th>
+                <th>Capacity</th>
+                <th>Wheelchair Accessible</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Grand Hall</td>
+                <td>500</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Conference Room A</td>
+                <td>100</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Outdoor Pavilion</td>
+                <td>300</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>City Auditorium</td>
+                <td>600</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>Skyline Banquet Hall</td>
+                <td>250</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
