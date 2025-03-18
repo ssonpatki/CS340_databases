@@ -22,9 +22,9 @@ def create_app():
 
     # connect to mySQL database
     app.config["MYSQL_HOST"] = "classmysql.engr.oregonstate.edu"
-    app.config["MYSQL_USER"] = "cs340_sonpatks"
-    app.config["MYSQL_PASSWORD"] = "8739"
-    app.config["MYSQL_DB"] = "cs340_sonpatks"
+    app.config["MYSQL_USER"] = "cs340_[username]"
+    app.config["MYSQL_PASSWORD"] = "[password]"
+    app.config["MYSQL_DB"] = "cs340_[username]"
     app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
     mysql.init_app(app)
