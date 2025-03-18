@@ -1,0 +1,214 @@
+{#
+    Citation for the following code:
+    Course: CS340 - Introduction to Databases
+    File: Frontend implementation for Managing Event Attendees (template file)
+    Database: SQL 
+    Revised: 16 March 2025
+    Sourced from: Oregon State Univerity Ecampus Course CS340 - Exploration - Developing in Flask
+    Source URL: 
+        Exploration: https://canvas.oregonstate.edu/courses/1987790/pages/exploration-developing-in-flask?module_item_id=25023028 
+        Flask Starter App: https://github.com/osu-cs340-ecampus/flask-starter-app 
+        People.j2 file from bsg_people: https://github.com/osu-cs340-ecampus/flask-starter-app/blob/master/bsg_people_app/templates/people.j2
+    Originality: Source code from people.j2 was used to start this assignment, and learn how to utilize flask. The following code is 
+    unique other than the structure of the file. 
+#}
+
+<html>
+<!-- Adapted from the people.html UI design -->
+<head>
+	<title>Event Attendees</title>
+	<link href="{{ url_for('event_has_attendees_bp.static', filename='main.css') }}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <header>
+		<h1>
+			ABC Event Management System
+		</h1>
+        <nav>
+				<a href="{{ url_for('home_bp.index') }}">Home</a>
+				<a href="{{ url_for('events_bp.events_home') }}">Events</a>
+				<a href="{{ url_for('venues_bp.venues_home') }}">Venues</a>
+				<a href="{{ url_for('attendees_bp.attendees_home') }}">Attendees</a>
+				<a href="{{ url_for('event_has_attendees_bp.event_has_attendees_home') }}">Events Attendees</a>
+				<a href="{{ url_for('task_definitions_bp.task_definitions_home') }}">Task Definitions</a>
+				<a href="{{ url_for('task_assignments_bp.task_assignments_home') }}">Task Assignments</a>
+			</nav>
+	</header>
+    <main> 
+		
+        <h2 class="mainHeading">
+            <big>Manage Event Attendees</big>
+        </h2>
+
+        <!-- Add Attendee Form -->
+        <div class="mb-4">
+            <h2>Add Attendee to Event</h2>
+            <label for="event_id">Event:</label>
+            <select id="event_id" class="form-control mb-2"></select>
+            <label for="attendee_id">Attendee:</label>
+            <select id="attendee_id" class="form-control mb-2"></select></br>
+            <button class="btn btn-primary" onclick="addAttendee()">Add Event Attendee</button>
+        </div>
+
+        <!-- Update Attendee Form -->
+        <div class="mb-4" id="updateForm" style="display: none;">
+            <h2>Update Event Attendee</h2>
+            <label for="update_event_id">New Event:</label>
+            <select id="update_event_id" class="form-control mb-2"></select>
+            <label for="update_attendee_id">New Attendee:</label>
+            <select id="update_attendee_id" class="form-control mb-2"></select></br>
+            <button class="btn btn-success" onclick="updateAttendee()">Update Event Attendee</button>
+            <button class="btn btn-secondary" onclick="cancelUpdate()">Cancel</button>
+        </div>
+
+        <!-- Attendee List -->
+        <h2><big>Event Attendees</big></h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Event ID</th>
+                    <th>Event Name</th>
+                    <th>Attendee ID</th>
+                    <th>Attendee Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="attendeeList"></tbody>
+        </table>
+
+	</main>
+    <script>
+        let selectedAttendee = null;
+
+        function loadDropdowns() {
+
+            $.get('/events/api/events/names', function(events) {
+                $('#event_id, #update_event_id').empty().append('<option value="">-- Select Event --</option>');
+                events.forEach(event => {
+                    $('#event_id, #update_event_id').append(`<option value="${event.event_id}">${event.event_name}</option>`);
+                });
+                console.log("✅ Loaded events:", events);
+            }).fail(function(xhr) {
+                console.error("❌ Error loading events:", xhr.responseText);
+            });
+
+            $.get('/attendees/api/attendees/names', function(attendees) {
+                $('#attendee_id, #update_attendee_id').empty().append('<option value="">-- Select Assignee --</option>');
+                attendees.forEach(attendee => {
+                    $('#attendee_id, #update_attendee_id').append(`<option value="${attendee.attendee_id}">${attendee.first_name} ${attendee.last_name}</option>`);
+                });
+                console.log("✅ Loaded attendees:", attendees);
+            }).fail(function(xhr) {
+                console.error("❌ Error loading attendees:", xhr.responseText);
+            });
+        }
+
+        async function fetchAttendees() {
+            const response = await fetch('/event_has_attendees/api/event_has_attendees');
+            const attendees = await response.json();
+            const tableBody = document.getElementById('attendeeList');
+            tableBody.innerHTML = '';
+
+            attendees.forEach(att => {
+                const row = `
+                    <tr>
+                        <td>${att.event_id}</td>
+                        <td>${att.event_name}</td>
+                        <td>${att.attendee_id}</td>
+                        <td>${att.first_name} ${att.last_name}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editAttendee(${att.event_id}, ${att.attendee_id})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAttendee(${att.event_id}, ${att.attendee_id})">Remove</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        async function addAttendee() {
+            const event_id = parseInt(document.getElementById('event_id').value);
+            const attendee_id = parseInt(document.getElementById('attendee_id').value);
+
+            if (!event_id || !attendee_id) {
+                alert("Please enter both Event ID and Attendee ID");
+                return;
+            }
+
+            const response = await fetch('/event_has_attendees/api/event_has_attendees', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_id: event_id, attendee_id: attendee_id }) // Ensure correct format
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                fetchAttendees();
+                document.getElementById('event_id').value = '';
+                document.getElementById('attendee_id').value = '';
+            } else {
+                alert("Error adding attendee: " + result.error);
+            }
+        }
+
+
+        async function deleteAttendee(event_id, attendee_id) {
+            await fetch('/event_has_attendees/api/event_has_attendees', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_id, attendee_id })
+            });
+
+            fetchAttendees();
+        }
+
+        async function updateAttendee() {
+            const event_id = document.getElementById('update_event_id').value;
+            const attendee_id = document.getElementById('update_attendee_id').value;
+
+            if (!event_id || !attendee_id || !selectedAttendee) {
+                alert("Please provide valid data for the update");
+                return;
+            }
+
+            const response = await fetch('/event_has_attendees/api/event_has_attendees', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event_id: selectedAttendee.event_id,
+                    attendee_id: selectedAttendee.attendee_id,
+                    new_event_id: event_id,
+                    new_attendee_id: attendee_id
+                })
+            });
+
+            if (response.ok) {
+                fetchAttendees();
+                cancelUpdate();
+            } else {
+                alert("Error updating attendee");
+            }
+        }
+
+        function editAttendee(event_id, attendee_id) {
+            selectedAttendee = { event_id, attendee_id };
+            document.getElementById('update_event_id').value = event_id;
+            document.getElementById('update_attendee_id').value = attendee_id;
+            document.getElementById('updateForm').style.display = 'block';
+        }
+
+        function cancelUpdate() {
+            document.getElementById('updateForm').style.display = 'none';
+            selectedAttendee = null;
+        }
+
+        window.onload = function() {
+            fetchAttendees();
+            loadDropdowns();
+        };
+    </script>
+
+</body>
+</html>

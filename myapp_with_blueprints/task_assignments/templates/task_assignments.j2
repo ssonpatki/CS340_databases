@@ -1,0 +1,257 @@
+{#
+    Citation for the following code:
+    Course: CS340 - Introduction to Databases
+    File: Frontend implementation for Managing Task Assignments (template file)
+    Database: SQL 
+    Revised: 16 March 2025
+    Sourced from: Oregon State Univerity Ecampus Course CS340 - Exploration - Developing in Flask
+    Source URL: 
+        Exploration: https://canvas.oregonstate.edu/courses/1987790/pages/exploration-developing-in-flask?module_item_id=25023028 
+        Flask Starter App: https://github.com/osu-cs340-ecampus/flask-starter-app 
+        People.j2 file from bsg_people: https://github.com/osu-cs340-ecampus/flask-starter-app/blob/master/bsg_people_app/templates/people.j2
+    Originality: Source code from people.j2 was used to start this assignment, and learn how to utilize flask. The following code is 
+    unique other than the structure of the file. 
+#}
+
+<html>
+{# Adapted from the task_assignments.html UI design #}
+<head>
+	<title>Task Assignments</title>
+	<link href="{{ url_for('task_assignments_bp.static', filename='main.css') }}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+		<h1>
+			ABC Event Management System
+		</h1>
+        <nav>
+            <a href="{{ url_for('home_bp.index') }}">Home</a>
+            <a href="{{ url_for('events_bp.events_home') }}">Events</a>
+            <a href="{{ url_for('venues_bp.venues_home') }}">Venues</a>
+            <a href="{{ url_for('attendees_bp.attendees_home') }}">Attendees</a>
+            <a href="{{ url_for('event_has_attendees_bp.event_has_attendees_home') }}">Events Attendees</a>
+            <a href="{{ url_for('task_definitions_bp.task_definitions_home') }}">Task Definitions</a>
+            <a href="{{ url_for('task_assignments_bp.task_assignments_home') }}">Task Assignments</a>
+		</nav>
+	</header>
+    <main> 
+        <h2 class="mainHeading">
+            <big>Manage Task Assignments</big>
+        </h2>
+
+        {# add an task assignment record form always displayed on frontend page #}
+        <h2>Add Task Assignment</h2>
+        <form id="addTaskAssignmentForm">
+            <label for="task_id">Task:</label>
+            <select id="task_id" required></select>
+        
+            <label for="event_id">Event:</label>
+            <select id="event_id" required></select>
+        
+            <label for="attendee_id">Assignee:</label>
+            <select id="attendee_id" required></select>
+        
+            <button type="submit">Add Task Assignment</button>
+        </form>    
+
+        {# update an task assignment record form hidden until edit record button pressed #}
+        <form id="updateTaskAssignmentForm" style="display: none;">
+            <h2>Update Task Assignment</h2>
+
+            <input type="hidden" id="update_assignment_id">
+
+            <label for="update_task_id">Task:</label>
+            <select id="update_task_id" required></select>
+
+            <label for="update_event_id">Event:</label>
+            <select id="update_event_id" required></select>
+
+            <label for="update_attendee_id">Assignee:</label>
+            <select id="update_attendee_id" required></select>
+
+            <button type="submit">Update Task Assignment</button>
+            <button type="button" onclick="cancelUpdate()">Cancel</button>
+        </form>
+
+        {# create a table on the frontend to display all task assignment records #}
+        <h2><big>Task Assignment List</big></h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Task</th>
+                    <th>Event</th>
+                    <th>Assignee</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="taskAssignmentList"></tbody>
+        </table>
+         
+	</main>
+
+    <script>
+    {# scripts interact with route.py file to manipulate backend #}
+
+        {# function used to load dropdown options for task definitions, events, and attendees records #}
+        function loadDropdowns() {
+            $.get('/task_definitions/api/task_definitions', function(tasks) {
+                $('#task_id, #update_task_id').empty().append('<option value="">-- Select Task --</option>');
+                tasks.forEach(task => {
+                    $('#task_id, #update_task_id').append(`<option value="${task.task_id}">${task.task_name}</option>`);
+                });
+                console.log("✅ Loaded tasks:", tasks);
+            }).fail(function(xhr) {
+                console.error("❌ Error loading tasks:", xhr.responseText);
+            });
+
+            $.get('/events/api/events', function(events) {
+                $('#event_id, #update_event_id').empty().append('<option value="">-- Select Event --</option>');
+                events.forEach(event => {
+                    $('#event_id, #update_event_id').append(`<option value="${event.event_id}">${event.event_name}</option>`);
+                });
+                console.log("✅ Loaded events:", events);
+            }).fail(function(xhr) {
+                console.error("❌ Error loading events:", xhr.responseText);
+            });
+
+            $.get('/attendees/api/attendees/names', function(attendees) {
+                $('#attendee_id, #update_attendee_id').empty().append('<option value="">-- Select Assignee --</option>');
+                attendees.forEach(attendee => {
+                    $('#attendee_id, #update_attendee_id').append(`<option value="${attendee.attendee_id}">${attendee.first_name} ${attendee.last_name}</option>`);
+                });
+                console.log("✅ Loaded attendees:", attendees);
+            }).fail(function(xhr) {
+                console.error("❌ Error loading attendees:", xhr.responseText);
+            });
+        }
+
+
+        {# load used to populate entity table #}
+        function loadTaskAssignments() {
+            $.get('/task_assignments/api/task_assignments', function(data) {
+                $('#taskAssignmentList').empty();
+                data.forEach(assignment => {
+                    $('#taskAssignmentList').append(`
+                        <tr>
+                            <td>${assignment.assignment_id}</td>
+                            <td>${assignment.task_name}</td>
+                            <td>${assignment.event_name}</td>
+                            <td>${assignment.attendee_name}</td>
+                            <td>
+                                <button onclick="editTaskAssignment(${assignment.assignment_id}, ${assignment.task_id}, ${assignment.event_id}, ${assignment.attendee_id})">Edit</button>
+                                <button onclick="deleteTaskAssignment(${assignment.assignment_id})">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }).fail(function(xhr) {
+                console.error("❌ Error loading task assignments:", xhr.responseText);
+            });
+        }
+
+        {# interacts with add function in route.py #}
+        $('#addTaskAssignmentForm').submit(function(event) {
+            event.preventDefault();
+
+            const newAssignment = {
+                task_id: $('#task_id').val(),
+                event_id: $('#event_id').val(),
+                attendee_id: $('#attendee_id').val()
+            };
+
+            console.log("🔹 Sending Task Assignment Data:", newAssignment);  // Debugging log
+
+            $.ajax({
+                url: '/task_assignments/api/task_assignments',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(newAssignment),
+                success: function() {
+                    console.log("✅ Task assignment added successfully!");  // Debugging log
+                    loadTaskAssignments();
+                    $('#addTaskAssignmentForm')[0].reset();
+                },
+                error: function(xhr) {
+                    console.error("❌ Error adding task assignment:", xhr.responseText);  // Debugging log
+                    alert("❌ Error adding task assignment: " + xhr.responseJSON.error);
+                }
+            });
+        });
+
+        function editTaskAssignment(id, task_id, event_id, attendee_id) {
+            $('#update_assignment_id').val(id);
+            $('#update_task_id').val(task_id);
+            $('#update_event_id').val(event_id);
+            $('#update_attendee_id').val(attendee_id);
+
+            $('#updateTaskAssignmentForm').show();
+        }
+
+        {# interacts with update function in route.py #}
+        $('#updateTaskAssignmentForm').submit(function(event) {
+            event.preventDefault();
+
+            const assignmentId = $('#update_assignment_id').val();  // Get ID
+            const updatedAssignment = {
+                task_id: $('#update_task_id').val(),
+                event_id: $('#update_event_id').val(),
+                attendee_id: $('#update_attendee_id').val()
+            };
+
+            console.log("🔹 Updating Task Assignment:", updatedAssignment);  // Debugging Log
+
+            // Validate that all fields have values
+            if (!updatedAssignment.task_id || !updatedAssignment.event_id || !updatedAssignment.attendee_id) {
+                alert("❌ Please fill in all required fields.");
+                return;
+            }
+
+            $.ajax({
+                url: `/task_assignments/api/task_assignments/${assignmentId}`,
+                type: 'PUT',
+                contentType: "application/json",
+                data: JSON.stringify(updatedAssignment),
+                success: function() {
+                    console.log("✅ Task assignment updated successfully!");
+                    loadTaskAssignments();
+                    $('#updateTaskAssignmentForm')[0].reset();
+                    $('#updateTaskAssignmentForm').hide();
+                },
+                error: function(xhr) {
+                    console.error("❌ Error updating task assignment:", xhr.responseText);
+                    alert("❌ Error updating task assignment: " + (xhr.responseJSON?.error || "Unknown error"));
+                }
+            });
+        });
+
+        {# interacts with delete function in route.py #}
+        function deleteTaskAssignment(id) {
+            if (confirm("Are you sure you want to delete this task assignment?")) {
+                $.ajax({
+                    url: `/task_assignments/api/task_assignments/${id}`,
+                    type: 'DELETE',
+                    success: function() {
+                        loadTaskAssignments();
+                    },
+                    error: function(xhr) {
+                        alert("❌ Error deleting task assignment: " + xhr.responseJSON.error);
+                    }
+                });
+            }
+        }
+
+        {# used to hide edit form if the user selects cancel #}
+        function cancelUpdate() {
+            $('#updateTaskAssignmentForm').hide();
+        }
+
+        {# populate dropdown menus and table immediately when page loads #}
+        $(document).ready(function() {
+            loadDropdowns();
+            loadTaskAssignments();
+        });
+    </script>
+</body>
+</html>

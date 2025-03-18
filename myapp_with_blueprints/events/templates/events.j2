@@ -1,0 +1,243 @@
+{#
+    Citation for the following code:
+    Course: CS340 - Introduction to Databases
+    File: Frontend implementation for Managing Events (template file)
+    Database: SQL 
+    Revised: 16 March 2025
+    Sourced from: Oregon State Univerity Ecampus Course CS340 - Exploration - Developing in Flask
+    Source URL: 
+        Exploration: https://canvas.oregonstate.edu/courses/1987790/pages/exploration-developing-in-flask?module_item_id=25023028 
+        Flask Starter App: https://github.com/osu-cs340-ecampus/flask-starter-app 
+        People.j2 file from bsg_people: https://github.com/osu-cs340-ecampus/flask-starter-app/blob/master/bsg_people_app/templates/people.j2
+    Originality: Source code from people.j2 was used to start this assignment, and learn how to utilize flask. The following code is 
+    unique other than the structure of the file. 
+#}
+
+<html>
+{# Adapted from the events.html UI design #}
+<head>
+	<title>Events</title>
+	<link href="{{ url_for('events_bp.static', filename='main.css') }}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+		<h1>
+			ABC Event Management System
+		</h1>
+        <nav>
+				<a href="{{ url_for('home_bp.index') }}">Home</a>
+				<a href="{{ url_for('events_bp.events_home') }}">Events</a>
+				<a href="{{ url_for('venues_bp.venues_home') }}">Venues</a>
+				<a href="{{ url_for('attendees_bp.attendees_home') }}">Attendees</a>
+				<a href="{{ url_for('event_has_attendees_bp.event_has_attendees_home') }}">Events Attendees</a>
+				<a href="{{ url_for('task_definitions_bp.task_definitions_home') }}">Task Definitions</a>
+				<a href="{{ url_for('task_assignments_bp.task_assignments_home') }}">Task Assignments</a>
+		</nav>
+	</header>
+    <main> 
+	
+        <h2 class="mainHeading">
+            <big>Manage Events</big>
+        </h2>
+
+        {# add an event record form always displayed on frontend page #}
+        <h2>Add Event</h2>
+        <form id="addEventForm">
+            <input type="hidden" id="event_id">
+            <label for="event_name">Event Name:</label>
+            <input type="text" id="event_name" placeholder="Event Name">
+            <label for="event_date">Event Date:</label>
+            <input type="date" id="event_date" placeholder="mm/dd/yyyy">
+            <label for="total_attendees">Total Attendees:</label>
+            <input type="number" id="total_attendees" placeholder="Total Attendees" min="1">
+            <label for="venue_id">Venue:</label>
+            <select id="venue_id" required></select>
+            <button type="submit">Add Event</button>
+        </form>    
+
+        {# update an event record form hidden until edit record button pressed #}
+        <form id="updateEventForm" style="display: none;">
+            <h2>Update Event</h2>
+            <input type="hidden" id="update_event_id">
+            <label for="update_event_name">New Event Name:</label>
+            <input type="text" id="update_event_name" placeholder="New Event Name">
+            <label for="update_event_date">New Event Date:</label>
+            <input type="date" id="update_event_date" placeholder="mm/dd/yyyy">
+            <label for="update_total_attendees">New Total Attendees:</label>
+            <input type="number" id="update_total_attendees" placeholder="New Total Attendees" min="1">
+            <label for="update_venue_id">New Venue:</label>
+            <select id="update_venue_id"></select>
+            <button type="submit">Update Event</button>
+            <button type="button" onclick="cancelUpdate()">Cancel</button>
+        </form>
+        
+        {# create a table on the frontend to display all event records #}
+        <h2><big>Events List</big></h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Event Name</th>
+                    <th>Event Date</th>
+                    <th>Total Attendees</th>
+                    <th>Venue</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="eventList"></tbody>
+        </table>
+         
+	</main>
+    <script>
+    {# scripts interact with route.py file to manipulate backend #}
+
+        {# function formats date so that it populated table as mm/dd/yyyy #}
+        function formatDate(originalDate) {
+            if (!originalDate) return "";
+            let date = new Date(originalDate);
+            let month = String(date.getMonth() + 1).padStart(2, '0');
+            let day = String(date.getDate()).padStart(2, '0');
+            let year = date.getFullYear();
+            return `${month}/${day}/${year}`;
+        }
+
+        {# function loads dropdowns for venue names #}
+        function loadDropdowns() {
+            $.get('/venues/api/venues/names', function(venues) {
+                $('#venue_id, #update_venue_id').empty().append('<option value="">-- Select Venue --</option>');
+                venues.forEach(venue => {
+                    $('#venue_id, #update_venue_id').append(`<option value="${venue.venue_id}">${venue.venue_name}</option>`);
+                });
+                console.log("✅ Loaded venues:", venues);
+            }).fail(function(xhr) {
+                console.error("❌ Error loading venues:", xhr.responseText);
+            });
+        }
+
+        {# function loads records for events table #}
+        function loadEvents() {
+            $.get('/events/api/events', function(data) {
+                console.log("🔹 Loaded events:", data);  // Debugging output
+
+                $('#eventList').empty();
+                data.forEach(event => {
+                    $('#eventList').append(`
+                        <tr>
+                            <td>${event.event_id}</td>
+                            <td>${event.event_name}</td>
+                            <td>${formatDate(event.event_date)}</td>
+                            <td>${event.total_attendees}</td>
+                            <td>${event.venue_name}</td>
+                            <td>
+                                <button onclick='editEvent(${event.event_id}, ${JSON.stringify(event.event_name)}, "${event.event_date ? event.event_date : ''}", ${event.total_attendees}, ${event.venue_id || 'null'})'>Edit</button>
+                                <button onclick="deleteEvent(${event.event_id})">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }).fail(function(xhr) {
+                console.error("❌ Error loading events:", xhr.responseText);
+            });
+        }
+
+        {# interacts with add function in route.py #}
+        $('#addEventForm').submit(function(event) {
+            event.preventDefault();
+
+            const newEvent = {
+                event_name: $('#event_name').val().trim(),
+                event_date: new Date($('#event_date').val().trim()).toISOString().split('T')[0],
+                total_attendees: parseInt($('#total_attendees').val(), 10) || 0,
+                venue_id: $('#venue_id').val().trim()
+            };
+
+            console.log("🔹 Sending event data:", newEvent);  // Debugging
+
+            $.ajax({
+                url: '/events/api/events',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(newEvent),
+                success: function() {
+                    alert("✅ Event added successfully!");
+                    loadEvents();
+                    $('#addEventForm')[0].reset();
+                },
+                error: function(xhr) {
+                    alert("❌ Error adding event: " + xhr.responseJSON.error);
+                }
+            });
+        });
+
+        function editEvent(event_id, event_name, event_date, total_attendees, venue_name) {
+            $('#update_event_id').val(event_id);
+            $('#update_event_name').val(event_name);
+            $('#update_event_date').val(new Date(event_date).toISOString().split('T')[0]);
+            $('#update_total_attendees').val(total_attendees);
+            $('#update_venue_id').val(venue_id);
+            $('#updateEventForm').show();
+        }
+
+        {# interacts with update function in route.py #}
+        $('#updateEventForm').submit(function(event) {
+            event.preventDefault();
+
+            const eventId = $('#update_event_id').val().trim();
+            if (!eventId) {
+                alert("❌ Event ID is missing.");
+                return;
+            }
+
+            const updatedEvent = {
+                event_name: $('#update_event_name').val().trim(),
+                event_date: $('#update_event_date').val().trim(),
+                total_attendees: parseInt($('#update_total_attendees').val(), 10) || 0,
+                venue_id: $('#update_venue_id').val()
+            };
+
+            console.log("🔹 Sending Update Request for Event ID:", eventId, updatedEvent); // Debugging output
+
+            $.ajax({
+                url: `/events/api/events/${eventId}`,  // Ensure event ID is in the URL
+                type: 'PUT',
+                contentType: "application/json",
+                data: JSON.stringify(updatedEvent),
+                success: function(response) {
+                    alert("✅ Event updated successfully!");
+                    loadEvents();
+                    $('#updateEventForm')[0].reset();
+                    $('#updateEventForm').hide();
+                },
+                error: function(xhr) {
+                    alert("❌ Error updating event: " + xhr.responseJSON.error);
+                }
+            });
+        });
+
+        {# interacts with delete function in route.py #}
+        function deleteEvent(id) {
+            if (confirm("Are you sure you want to delete this event?")) {
+                $.ajax({
+                    url: `/events/api/events/${id}`,
+                    type: 'DELETE',
+                    success: function() {
+                        loadEvents();
+                    }
+                });
+            }
+        }
+
+        {# used to hide edit form if the user selects cancel #}
+        function cancelUpdate() {
+            $('#updateEventForm').hide();
+        }
+
+        {# populate table immediately when page loads #}
+        $(document).ready(function() {
+            loadEvents();
+            loadDropdowns();
+        });
+    </script>
+</body>
+</html>

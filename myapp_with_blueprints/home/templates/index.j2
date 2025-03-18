@@ -1,0 +1,52 @@
+{#
+    Citation for the following code:
+    Course: CS340 - Introduction to Databases
+    File: Frontend implementation for Home Page (template file)
+    Database: SQL 
+    Revised: 16 March 2025
+    Sourced from: Oregon State Univerity Ecampus Course CS340 - Exploration - Developing in Flask
+    Source URL: 
+        Exploration: https://canvas.oregonstate.edu/courses/1987790/pages/exploration-developing-in-flask?module_item_id=25023028 
+        Flask Starter App: https://github.com/osu-cs340-ecampus/flask-starter-app 
+        People.j2 file from bsg_people: https://github.com/osu-cs340-ecampus/flask-starter-app/blob/master/bsg_people_app/templates/people.j2
+    Originality: Source code from people.j2 was used to start this assignment, and learn how to utilize flask. The following code is 
+    unique other than the structure of the file. 
+#}
+
+<html>
+<!-- Adapted from the people.html UI design -->
+<head>
+	<title>Home</title>
+	<link href="{{ url_for('home_bp.static', filename='main.css') }}" rel="stylesheet" type="text/css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+	<header>
+		<h1>
+			ABC Event Management System
+		</h1>
+
+		<nav>
+				<a href="{{ url_for('home_bp.index') }}">Home</a>
+				<a href="{{ url_for('events_bp.events_home') }}">Events</a>
+				<a href="{{ url_for('venues_bp.venues_home') }}">Venues</a>
+				<a href="{{ url_for('attendees_bp.attendees_home') }}">Attendees</a>
+				<a href="{{ url_for('event_has_attendees_bp.event_has_attendees_home') }}">Events Attendees</a>
+				<a href="{{ url_for('task_definitions_bp.task_definitions_home') }}">Task Definitions</a>
+				<a href="{{ url_for('task_assignments_bp.task_assignments_home') }}">Task Assignments</a>
+		</nav>
+	</header>
+	<main> 
+		
+		<h2 class="mainHeading">
+			<big>Home</big>
+		</h2>
+
+		<p>
+			Welcome to the ABC Event Management System. Use the navigation links above to manage events, venues, attendees, task definitions, and task assignments.
+		</p>
+			
+	</main>
+</body>
+</html>

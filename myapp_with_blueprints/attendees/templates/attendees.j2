@@ -1,0 +1,233 @@
+{#
+    Citation for the following code:
+    Course: CS340 - Introduction to Databases
+    File: Frontend implementation for Managing Attendees (template file)
+    Database: SQL 
+    Revised: 16 March 2025
+    Sourced from: Oregon State Univerity Ecampus Course CS340 - Exploration - Developing in Flask
+    Source URL: 
+        Exploration: https://canvas.oregonstate.edu/courses/1987790/pages/exploration-developing-in-flask?module_item_id=25023028 
+        Flask Starter App: https://github.com/osu-cs340-ecampus/flask-starter-app 
+        People.j2 file from bsg_people: https://github.com/osu-cs340-ecampus/flask-starter-app/blob/master/bsg_people_app/templates/people.j2
+    Originality: Source code from people.j2 was used to start this assignment, and learn how to utilize flask. The following code is 
+    unique other than the structure of the file. 
+#}
+
+<html>
+{# Adapted from the attendees.html UI design #}
+<head>
+	<title>Attendees</title>
+	<link href="{{ url_for('attendees_bp.static', filename='main.css') }}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+		<h1>
+			ABC Event Management System
+		</h1>
+
+        <nav>
+				<a href="{{ url_for('home_bp.index') }}">Home</a>
+				<a href="{{ url_for('events_bp.events_home') }}">Events</a>
+				<a href="{{ url_for('venues_bp.venues_home') }}">Venues</a>
+				<a href="{{ url_for('attendees_bp.attendees_home') }}">Attendees</a>
+				<a href="{{ url_for('event_has_attendees_bp.event_has_attendees_home') }}">Events Attendees</a>
+				<a href="{{ url_for('task_definitions_bp.task_definitions_home') }}">Task Definitions</a>
+				<a href="{{ url_for('task_assignments_bp.task_assignments_home') }}">Task Assignments</a>
+			</nav>
+	</header>
+    <main> 
+		<h2 class="mainHeading">
+            <big>Manage Attendees</big>
+        </h2>
+
+        {# add an attendee record form always displayed on frontend page #}
+        <h2>Add Attendees</h2>
+        <form id="addAttendeeForm">
+            <input type="hidden" id="attendee_id">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" placeholder="First Name" required>
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" placeholder="Last Name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Email" required>
+            <label for="phone_number">Phone Number:</label>
+            <input type="tel" id="phone_number" required pattern="^\d{10}$" placeholder="Phone Number" required>
+            <label>
+                <input type="checkbox" id="is_employee">Is Employee
+            </label>
+            <button type="submit">Add Attendee</button>
+        </form>    
+
+        
+        {# update an attendee record form hidden until edit record button pressed #}
+        <form id="updateAttendeeForm" style="display: none;">
+            <h2>Update Attendee</h2>
+            <input type="hidden" id="update_attendee_id">
+            <label for="update_first_name">New First Name:</label>
+            <input type="text" id="update_first_name" placeholder="New First Name" required>
+            <label for="update_last_name">New Last Name:</label>
+            <input type="text" id="update_last_name" placeholder="New Last Name" required>
+            <label for="update_email">New Email:</label>
+            <input type="email" id="update_email" placeholder="New Email" required>
+            <label for="update_phone_number">New Phone Number:</label>
+            <input type="tel" id="update_phone_number" required pattern="^\d{10}$" placeholder="New Phone Number" required>
+            <label>
+                <input type="checkbox" id="update_is_employee">Is Employee
+            </label>
+            <button type="submit">Update Attendee</button>
+            <button type="button" onclick="cancelUpdate()">Cancel</button>
+        </form>
+
+        {# create a table on the frontend to display all attendees records #}
+        <h2><big>Attendees List</big></h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Is Employee</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="attendeeList"></tbody>
+        </table>
+       
+	</main>
+    <script>
+
+    {# scripts interact with route.py file to manipulate backend #}
+
+        {# load used to populate entity table #}
+        function loadAttendees() {
+            $.get('/attendees/api/attendees', function(data) {
+                console.log("🔹 Loaded attendees:", data);  // Debugging output
+
+                $('#attendeeList').empty();
+                data.forEach(attendee => {
+                    const isEmployeeText = attendee.is_employee ? 'Yes' : 'No';
+                    $('#attendeeList').append(`
+                        <tr>
+                            <td>${attendee.attendee_id}</td>
+                            <td>${attendee.first_name}</td>
+                            <td>${attendee.last_name}</td>
+                            <td>${attendee.email}</td>
+                            <td>${attendee.phone_number}</td>
+                            <td>${isEmployeeText}</td>
+                            <td>
+                                <button onclick="editAttendee(${attendee.attendee_id}, '${attendee.first_name}', '${attendee.last_name}', '${attendee.email}', '${attendee.phone_number}', ${attendee.is_employee})">Edit</button>
+                                <button onclick="deleteAttendee(${attendee.attendee_id})">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }).fail(function(xhr) {
+                console.error("❌ Error loading attendee:", xhr.responseText);
+            });
+        }
+
+        {# interacts with add function in route.py #}
+        $('#addAttendeeForm').submit(function(attendee) {
+            attendee.preventDefault();
+
+            const newAttendee = {
+                first_name: $('#first_name').val().trim(),
+                last_name: $('#last_name').val().trim(),
+                email: $('#email').val().trim(),
+                phone_number: $('#phone_number').val().trim(),
+                is_employee: $('#is_employee').prop('checked') ? 1 : 0
+            };
+
+            console.log("🔹 Sending attendee data:", newAttendee);  // Debugging
+
+            $.ajax({
+                url: '/attendees/api/attendees',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(newAttendee),
+                success: function() {
+                    alert("✅ Attendee added successfully!");
+                    loadAttendees();
+                    $('#addAttendeeForm')[0].reset();
+                },
+                error: function(xhr) {
+                    alert("❌ Error adding attendee: " + xhr.responseJSON.error);
+                }
+            });
+        });
+
+        function editAttendee(attendee_id, first_name, last_name, email, phone_number, employee) {
+            $('#update_attendee_id').val(attendee_id);
+            $('#update_first_name').val(first_name);
+            $('#update_last_name').val(last_name);
+            $('#update_email').val(email);
+            $('#update_phone_number').val(phone_number);
+            $('#update_is_employee').prop('checked', employee);
+            $('#updateAttendeeForm').show();
+        }
+
+        {# interacts with update function in route.py #}
+        $('#updateAttendeeForm').submit(function(attendee) {
+            attendee.preventDefault();
+
+            const attendeeId = $('#update_attendee_id').val().trim();
+            if (!attendeeId) {
+                alert("❌ Attendee ID is missing.");
+                return;
+            }
+
+            const updatedAttendee = {
+                first_name: $('#update_first_name').val().trim(),
+                last_name: $('#update_last_name').val().trim(),
+                email: $('#update_email').val().trim(),
+                phone_number: $('#update_phone_number').val().trim(),
+                is_employee: $('#update_is_employee').prop('checked') ? 1 : 0
+            };
+
+            console.log("🔹 Sending Update Request for Attendee ID:", attendeeId, updatedAttendee); // Debugging output
+
+            $.ajax({
+                url: `/attendees/api/attendees/${attendeeId}`,  // Ensure attendee ID is in the URL
+                type: 'PUT',
+                contentType: "application/json",
+                data: JSON.stringify(updatedAttendee),
+                success: function(response) {
+                    alert("✅ Attendee updated successfully!");
+                    loadAttendees();
+                    $('#updateAttendeeForm')[0].reset();
+                    $('#updateAttendeeForm').hide();
+                },
+                error: function(xhr) {
+                    alert("❌ Error updating attendee: " + xhr.responseJSON.error);
+                }
+            });
+        });
+
+        {# interacts with delete function in route.py #}
+        function deleteAttendee(id) {
+            if (confirm("Are you sure you want to delete this attendee?")) {
+                $.ajax({
+                    url: `/attendees/api/attendees/${id}`,
+                    type: 'DELETE',
+                    success: function() {
+                        loadAttendees();
+                    }
+                });
+            }
+        }
+
+        {# used to hide edit form if the user selects cancel #}
+        function cancelUpdate() {
+            $('#updateAttendeeForm').hide();
+        }
+
+        {# populate table immediately when page loads #}
+        $(document).ready(function() {
+            loadAttendees();
+        });
+    </script>
+</body>
+</html>
