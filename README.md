@@ -1,5 +1,5 @@
 # CS340 Final Portfolio
-## Author: Siya Sonpatki
+## Completed during Course: Introduction to Databases 
 
 ### User Interface
 <code>http://classwork.engr.oregonstate.edu:39021/</code>
