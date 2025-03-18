@@ -1,0 +1,196 @@
+{#
+    Citation for the following code:
+    Course: CS340 - Introduction to Databases
+    File: Frontend implementation for Managing Task Definitions (template file)
+    Database: SQL 
+    Revised: 16 March 2025
+    Sourced from: Oregon State Univerity Ecampus Course CS340 - Exploration - Developing in Flask
+    Source URL: 
+        Exploration: https://canvas.oregonstate.edu/courses/1987790/pages/exploration-developing-in-flask?module_item_id=25023028 
+        Flask Starter App: https://github.com/osu-cs340-ecampus/flask-starter-app 
+        People.j2 file from bsg_people: https://github.com/osu-cs340-ecampus/flask-starter-app/blob/master/bsg_people_app/templates/people.j2
+    Originality: Source code from people.j2 was used to start this assignment, and learn how to utilize flask. The following code is 
+    unique other than the structure of the file. 
+#}
+
+<html>
+{# Adapted from the task_definitions.html UI design #}
+<head>
+	<title>Task Definitions</title>
+	<link href="{{ url_for('task_definitions_bp.static', filename='main.css') }}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+		<h1>
+			ABC Event Management System
+		</h1>
+        <nav>
+            <a href="{{ url_for('home_bp.index') }}">Home</a>
+            <a href="{{ url_for('events_bp.events_home') }}">Events</a>
+            <a href="{{ url_for('venues_bp.venues_home') }}">Venues</a>
+            <a href="{{ url_for('attendees_bp.attendees_home') }}">Attendees</a>
+            <a href="{{ url_for('event_has_attendees_bp.event_has_attendees_home') }}">Events Attendees</a>
+            <a href="{{ url_for('task_definitions_bp.task_definitions_home') }}">Task Definitions</a>
+            <a href="{{ url_for('task_assignments_bp.task_assignments_home') }}">Task Assignments</a>
+		</nav>
+	</header>
+    <main> 
+
+        <h2 class="mainHeading">
+            <big>Manage Task Definitions</big>
+        </h2>
+
+        {# add a task definition record form always displayed on frontend page #}
+        <h2>Add Task Definition</h2>
+        <form id="addTaskForm">
+            <label for="task_name">Task Name:</label>
+            <input type="text" id="task_name" placeholder="Task Name" required></br>
+            <label for="task_description">Task Description:</label>
+            <textarea id="task_description" placeholder="Task Description" required></textarea>
+            <label for="task_status">Task Status:</label>
+            <select id="task_status" required>
+                <option value="" disabled selected>-- Task Status --</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+            <button type="submit">Add Task</button>
+        </form>    
+
+        {# update a task definition record form hidden until edit record button pressed #}
+        <form id="updateTaskForm" style="display: none;">
+            <h2>Update Task Definition</h2>
+            <input type="hidden" id="update_task_id">
+            <label for="update_task_name">New Task Name:</label>
+            <input type="text" id="update_task_name" placeholder="New Task Name" required></br>
+            <label for="update_task_description">New Task Description:</label>
+            <textarea id="update_task_description" placeholder="New Task Description" required></textarea>
+            <label for="update_task_status">New Task Status:</label>
+            <select id="update_task_status">
+                <option value="" disabled selected>-- New Task Status --</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+            <button type="submit">Update Task</button>
+            <button type="button" onclick="cancelUpdate()">Cancel</button>
+        </form>
+
+        {# create a table on the frontend to display all task definition records #}
+        <h2><big>Task Definitions List</big></h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Task Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="taskList"></tbody>
+        </table>   
+        
+	</main> 
+
+    <script>
+    {# scripts interact with route.py file to manipulate backend #}
+
+        {# load used to populate entity table #}
+        function loadTasks() {
+            $.get('/task_definitions/api/task_definitions', function(data) {
+                $('#taskList').empty();
+                data.forEach(task => {
+                    $('#taskList').append(`
+                        <tr>
+                            <td>${task.task_id}</td>
+                            <td>${task.task_name}</td>
+                            <td>${task.task_description}</td>
+                            <td>${task.task_status}</td>
+                            <td>
+                                <button onclick="editTask(${task.task_id}, '${task.task_name}', '${task.task_description}', '${task.task_status}')">Edit</button>
+                                <button onclick="deleteTask(${task.task_id})">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        {# interacts with add function in route.py #}
+        $('#addTaskForm').submit(function(event) {
+            event.preventDefault();
+            const newTask = {
+                task_name: $('#task_name').val().trim(),
+                task_description: $('#task_description').val().trim(),
+                task_status: $('#task_status').val().trim()
+            };
+
+            $.ajax({
+                url: '/task_definitions/api/task_definitions',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(newTask),
+                success: function() {
+                    loadTasks();
+                    $('#addTaskForm')[0].reset();
+                }
+            });
+        });
+
+        function editTask(id, name, description, status) {
+            $('#update_task_id').val(id);
+            $('#update_task_name').val(name);
+            $('#update_task_description').val(description);
+            $('#update_task_status').val(status);
+            $('#updateTaskForm').show();
+        }
+
+        {# interacts with update function in route.py #}
+        $('#updateTaskForm').submit(function(event) {
+            event.preventDefault();
+            const updatedTask = {
+                task_name: $('#update_task_name').val().trim(),
+                task_description: $('#update_task_description').val().trim(),
+                task_status: $('#update_task_status').val().trim()
+            };
+
+            $.ajax({
+                url: `/task_definitions/api/task_definitions/${$('#update_task_id').val()}`,
+                type: 'PUT',
+                contentType: "application/json",
+                data: JSON.stringify(updatedTask),
+                success: function() {
+                    loadTasks();
+                    $('#updateTaskForm')[0].reset();
+                    $('#updateTaskForm').hide();
+                }
+            });
+        });
+
+        {# interacts with delete function in route.py #}
+        function deleteTask(id) {
+            if (confirm("Are you sure you want to delete this task?")) {
+                $.ajax({
+                    url: `/task_definitions/api/task_definitions/${id}`,
+                    type: 'DELETE',
+                    success: function() {
+                        loadTasks();
+                    }
+                });
+            }
+        }
+
+        {# used to hide edit form if the user selects cancel #}
+        function cancelUpdate() {
+            $('#updateTaskForm').hide();
+        }
+
+        {# populate table immediately when page loads #}
+        $(document).ready(function() {
+            loadTasks();
+        });
+    </script>
+</body>
+</html>

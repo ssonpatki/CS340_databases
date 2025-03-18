@@ -1,3 +1,17 @@
+/*
+    Citation for the following code:
+    Course: CS340 - Introduction to Databases
+    File: Data Definition Queries using Data Definition Language
+    Database: SQL 
+    Revised: 25 February 2025
+    Sourced from: Oregon State Univerity Ecampus Course CS340 - Activity 1/2/3
+    Source URL: 
+        Activity 1: https://canvas.oregonstate.edu/courses/1987790/pages/activity-1-creating-a-customer-object-table?module_item_id=25022975
+        Activity 3: https://canvas.oregonstate.edu/courses/1987790/pages/activity-3-creating-transaction-and-category-tables?module_item_id=25022977
+    Originality: Source code used for inspiration to complete this assignment. Query structures are based on examples within the source code, but the specific 
+    attributes and entities are specific to our unique db.
+*/
+
 -- =============================================
 -- Note the special character colon : is used to denote entries that the user will fill
 -- =============================================
